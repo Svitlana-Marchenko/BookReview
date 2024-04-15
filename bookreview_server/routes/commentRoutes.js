@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const commentController = require('../controller/commentController');
-const { validateToken, checkUserRole} = require('../middleware/tokenHandler');
+const { validateToken} = require('../middleware/tokenHandler');
 
-router.post('/:bookId', validateToken, checkUserRole, commentController.postComment);
-router.get('/:bookId', commentController.getComments);
+router.post('/book/:bookId', validateToken, commentController.postComment);
+router.get('/book/:bookId', commentController.getComments);
 
 module.exports = router;
