@@ -12,11 +12,6 @@ const authorSchema = new mongoose.Schema({
     yearOfBirth: {
         type: Number,
         required: true
-    },
-    gender: {
-        type: String,
-        required: true,
-        enum: ['Male', 'Female', 'Other']
     }
 });
 

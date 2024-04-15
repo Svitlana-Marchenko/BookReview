@@ -1,13 +1,31 @@
 const Author = require('../model/AuthorModel');
 
-const findAllAuthors = async (query) => {
-    return Author.find(query);
+const findAllAuthors = async (query, sortBy, sortOrder) => {
+    const sortOptions = {};
+    if (sortBy) {
+        sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    }
+    return Author.find(query).sort(sortOptions);
 };
 
-const findAuthorsPagination = async (query, page, pageSize) => {
+const findAuthorsPagination = async (query, page, pageSize, sortBy, sortOrder) => {
     const skip = (page - 1) * pageSize;
-    return Author.find(query).skip(skip).limit(pageSize);
-}
+    let totalCountQuery = Author.find(query);
+    let authorsQuery = Author.find(query);
+
+    if (sortBy && sortOrder) {
+        const sortOptions = {};
+        sortOptions[sortBy] = sortOrder === 'desc' ? -1 : 1;
+        totalCountQuery = totalCountQuery.sort(sortOptions);
+        authorsQuery = authorsQuery.sort(sortOptions);
+    }
+
+    const totalCount = await totalCountQuery.countDocuments();
+    const authors = await authorsQuery.skip(skip).limit(pageSize);
+
+    return { totalCount, authors };
+};
+
 
 const createAuthor = async (data) => {
     const author = new Author(data);

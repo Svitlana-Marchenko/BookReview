@@ -1,38 +1,55 @@
 const authorService = require('../service/authorService');
+const bookService = require("../service/bookService");
 
 const getAuthors = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 0;
+        const sortBy = req.query.sortBy || '';
+        const sortOrder = req.query.sortOrder || '';
+        const search = req.query.search
 
         let query = {};
         if (Object.keys(req.query).length !== 0) {
             query = req.query;
             delete query.page;
             delete query.limit;
+            delete query.sortBy;
+            delete query.sortOrder;
+            delete query.search
+
+            if (search.length !== 0) {
+                query = {...query,
+                    $or: [
+                        {name: {$regex: search, $options: 'i'}},
+                        {lastname: {$regex: search, $options: 'i'}}
+                    ]
+                };
+            }
+
         }
 
-        let authors
+        let authors;
         if (limit > 0) {
-            authors = await authorService.findAuthorsPagination(query, page, limit);
+            authors = await authorService.findAuthorsPagination(query, page, limit, sortBy, sortOrder);
         } else {
-            authors = await authorService.findAllAuthors(query);
+            authors = await authorService.findAllAuthors(query, sortBy, sortOrder);
         }
 
         res.status(200).json(authors);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(500).json({error: error.message});
     }
 };
 
 const postAuthor = async (req, res) => {
 
-    const { name, lastname, yearOfBirth, gender } = req.body;
+    const { name, lastname, yearOfBirth} = req.body;
     const year = Number(yearOfBirth);
     if (isNaN(year) || year < 0 || year > 2024) {
         return res.status(400).json({ message: 'Invalid year of birth.' });
     }
-    const data = { name, lastname, yearOfBirth: year, gender };
+    const data = { name, lastname, yearOfBirth: year};
 
     try {
         const author = await authorService.createAuthor(data);
@@ -93,6 +110,13 @@ const updateAuthor = async (req, res) => {
 const deleteAuthor = async (req, res) => {
     const { id } = req.params;
     try {
+        // Перевіряємо, чи є книги цього автора
+        const booksByAuthor = await bookService.findAllBooks({ author: id });
+        if (booksByAuthor.length > 0) {
+            // Якщо є книги, не дозволяємо видалення
+            return res.status(400).send('Неможливо видалити автора, який має книги.');
+        }
+
         const author = await authorService.deleteAuthorById(id);
         if (!author) {
             return res.status(404).json({ error: 'Автора не знайдено' });

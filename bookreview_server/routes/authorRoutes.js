@@ -1,20 +1,18 @@
 const express = require("express");
 const authorController = require("../controller/authorController");
 const router = express.Router();
-const {validateToken} = require("../middleware/tokenHandler")
-
-router.use(validateToken)
+const {validateToken, checkAdminRole} = require("../middleware/tokenHandler")
 
 router.route("")
     .get(authorController.getAuthors)
-    .post(authorController.postAuthor)
-    .delete(authorController.deleteAuthors);
+    .post(validateToken, checkAdminRole, authorController.postAuthor)
+    .delete(validateToken, checkAdminRole, authorController.deleteAuthors);
 
 router.get("/count", authorController.getCount);
 
 router.route("/:id")
     .get(authorController.getAuthorById)
-    .put(authorController.updateAuthor)
-    .delete(authorController.deleteAuthor);
+    .put(validateToken, checkAdminRole, authorController.updateAuthor)
+    .delete(validateToken, checkAdminRole, authorController.deleteAuthor);
 
 module.exports = router;
