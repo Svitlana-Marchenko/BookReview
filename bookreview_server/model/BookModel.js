@@ -12,6 +12,22 @@ const bookSchema = new mongoose.Schema({
     },
     genre: {
         type: String,
+        required: true,
+        enum: [
+            "Action",
+            "Romance",
+            "Fantasy",
+            "Drama",
+            "Crime",
+            "Adventure",
+            "Thriller",
+            "Sci-fi",
+            "Music",
+            "Family",
+        ]
+    },
+    description: {
+        type: String,
         required: true
     },
     year: {
@@ -19,7 +35,11 @@ const bookSchema = new mongoose.Schema({
         required: true,
         default: 0
     },
-    page: Number
+    page: {
+        type: Number,
+        required: true,
+        default: 0
+    }
 });
 
 
