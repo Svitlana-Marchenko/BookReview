@@ -7,18 +7,23 @@ const bodyParser = require('body-parser');
 const cors = require('cors')
 const errorHandler = require("./middleware/errorHandler");
 
-
 app.use(bodyParser.json());
+
+app.use(
+    cors({
+        origin: "http://localhost:3000",
+        methods: ["GET", "POST", "PUT", "DELETE"]
+    }));
 
 const port = 8000;
 app.listen(port);
-console.log('Server is running on port '+port);
+console.log('Server is running on port ' + port);
 
 mongoose.connect(mongoString);
 const db = mongoose.connection;
 
 db.on('error', console.error.bind(console, 'Помилка з\'єднання з базою даних:'));
-db.once('open', function() {
+db.once('open', function () {
     console.log('Підключено до бази даних');
 });
 
