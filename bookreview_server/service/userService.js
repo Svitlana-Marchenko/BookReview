@@ -1,5 +1,4 @@
 const User = require('../model/UserModel');
-const Author = require("../model/AuthorModel");
 
 const findUserByEmail = async (email) => {
     return User.findOne({email});
@@ -10,49 +9,46 @@ const createUser = async (data) => {
     return user.save();
 };
 
-const findAllAuthors = async (query) => {
-    return Author.find(query);
+const findAllUsers = async (query) => {
+    return User.find(query);
 };
 
-const findAuthorsPagination = async (query, page, pageSize) => {
+const findUsersPagination = async (query, page, pageSize) => {
     const skip = (page - 1) * pageSize;
-    return Author.find(query).skip(skip).limit(pageSize);
+    return User.find(query).skip(skip).limit(pageSize);
 }
 
-const createAuthor = async (data) => {
-    const book = new Author(data);
-    return book.save();
+
+const deleteUsers = async (query) => {
+    return User.deleteMany(query);
 };
 
-const deleteAuthors = async (query) => {
-    return Author.deleteMany(query);
+const countUsers = async () => {
+    return User.countDocuments();
 };
 
-const countAuthors = async () => {
-    return Author.countDocuments();
+const findUserById = async (id) => {
+    return User.findById(id);
 };
 
-const findAuthorById = async (id) => {
-    return Author.findById(id);
+const updateUserById = async (id, updateData) => {
+    const { name, lastname } = updateData;
+    return User.findByIdAndUpdate(id, { name, lastname }, { new: true });
 };
 
-const updateAuthorById = async (id, updateData) => {
-    return Author.findByIdAndUpdate(id, updateData, { new: true });
-};
 
-const deleteAuthorById = async (id) => {
-    return Author.findByIdAndDelete(id);
+const deleteUserById = async (id) => {
+    return User.findByIdAndDelete(id);
 };
 
 module.exports = {
     findUserByEmail,
     createUser,
-    findAllAuthors,
-    createAuthor,
-    deleteAuthors,
-    countAuthors,
-    findAuthorById,
-    updateAuthorById,
-    deleteAuthorById,
-    findAuthorsPagination
+    deleteUserById,
+    deleteUsers,
+    updateUserById,
+    findUserById,
+    findAllUsers,
+    findUsersPagination,
+    countUsers
 };
